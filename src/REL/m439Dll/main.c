@@ -1752,7 +1752,9 @@ void fn_1_77E4(s32 shadowNo);
 void fn_1_7578(s16 layer)
 {
     omObjData **playerList;
+#ifndef TARGET_PC
     s32 i;
+#endif
     s32 dataSize = Hu3DShadowData.unk_02 * Hu3DShadowData.unk_02;
     if (fn_1_374() < 3) {
         return;
@@ -1764,6 +1766,7 @@ void fn_1_7578(s16 layer)
         if (Hu3DData[playerList[0]->model[0]].attr & 0x4) {
             Hu3DModelShadowReset(playerList[0]->model[0]);
         }
+#ifndef TARGET_PC
         for (i = 0; i < 3; i++) {
             playerWork = playerList[i + 1]->data;
             if (playerWork->unk0_field3) {
@@ -1776,6 +1779,7 @@ void fn_1_7578(s16 layer)
                 Hu3DModelShadowReset(playerList[i + 1]->model[0]);
             }
         }
+#endif
         playerWork = playerList[0]->data;
         if (playerWork->unk0_field3) {
             Hu3DModelShadowSet(playerList[0]->model[0]);
@@ -1789,9 +1793,36 @@ void fn_1_7578(s16 layer)
         }
     }
     else {
-        MTXCopy(lbl_1_bss_44[Hu3DCameraNo - 1], Hu3DShadowData.lookAtMtx);
+#ifdef TARGET_PC
+        WorkD0C *playerWork;
+        void *shadowBuf;
+
+        playerList = omGetGroupMemberListEx(lbl_1_bss_128, 0);
+        if (Hu3DData[playerList[0]->model[0]].attr & 0x4) {
+            Hu3DModelShadowReset(playerList[0]->model[0]);
+        }
+        playerWork = playerList[Hu3DCameraNo]->data;
+        if (playerWork->unk0_field3) {
+            Hu3DModelShadowSet(playerList[Hu3DCameraNo]->model[0]);
+        }
+        // Aurora keys GXCopyTex results by destination pointer, so memcpy would keep sampling player 1's shadow texture.
+        shadowBuf = lbl_1_bss_11C[Hu3DCameraNo - 1];
+        lbl_1_bss_11C[Hu3DCameraNo - 1] = Hu3DShadowData.buf;
+        fn_1_77E4(Hu3DCameraNo - 1);
+        lbl_1_bss_11C[Hu3DCameraNo - 1] = shadowBuf;
+        GXDrawDone();
+        if (playerWork->unk0_field3) {
+            Hu3DModelShadowReset(playerList[Hu3DCameraNo]->model[0]);
+        }
+        playerWork = playerList[0]->data;
+        if (playerWork->unk0_field3) {
+            Hu3DModelShadowSet(playerList[0]->model[0]);
+        }
+#else
         memcpy(Hu3DShadowData.buf, lbl_1_bss_11C[Hu3DCameraNo - 1], dataSize);
         DCFlushRangeNoSync(Hu3DShadowData.buf, dataSize);
+#endif
+        MTXCopy(lbl_1_bss_44[Hu3DCameraNo - 1], Hu3DShadowData.lookAtMtx);
     }
 }
 
