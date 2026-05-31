@@ -269,7 +269,7 @@ s32 GWMGAvailGet(s32 id)
     s32 word;
     s32 bit;
     id -= 401;
-#ifndef __MWERKS__
+#ifdef TARGET_PC
     if ((u32)id < 64U && partyboard_settings_unlock_all_minigames()) {
         return 1;
     }
