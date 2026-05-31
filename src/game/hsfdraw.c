@@ -1812,6 +1812,7 @@ static void LoadTexture(ModelData *arg0, HSFBITMAP *arg1, HSFATTRIBUTE *arg2, s1
     s32 var_r20;
     s16 var_r30;
     GXCITexFmt fmt;
+    void *pal_data;
 
     if (arg1 == 0) {
         OSReport("Error: No Texture\n");
@@ -1823,6 +1824,7 @@ static void LoadTexture(ModelData *arg0, HSFBITMAP *arg1, HSFATTRIBUTE *arg2, s1
     var_r21 = (arg2->wrapT == 1) ? GX_REPEAT : GX_CLAMP;
     var_r20 = (arg2->flag & 0x80) ? GX_TRUE : GX_FALSE;
     // Paletted animated HSF textures can reuse cached TLUT objects while swapping palette data.
+    // Only notify Aurora when the palette pointer changes; that bumps the TLUT version and cache key.
     switch (arg1->dataFmt) {
         case 6:
             if (!arg2->tex_initialized) {
@@ -1845,7 +1847,7 @@ static void LoadTexture(ModelData *arg0, HSFBITMAP *arg1, HSFATTRIBUTE *arg2, s1
                 GXInitTlutObj(tlut_obj, arg1->palData, GX_TL_RGB565, arg1->palSize);
                 arg2->tlut_initialized = TRUE;
             }
-            else {
+            else if (GXGetTlutObjData(tlut_obj) != arg1->palData) {
                 GXInitTlutObjData(tlut_obj, arg1->palData);
             }
             GXLoadTlut(tlut_obj, arg3);
@@ -1859,7 +1861,7 @@ static void LoadTexture(ModelData *arg0, HSFBITMAP *arg1, HSFATTRIBUTE *arg2, s1
                 GXInitTlutObj(tlut_obj, arg1->palData, GX_TL_RGB5A3, arg1->palSize);
                 arg2->tlut_initialized = TRUE;
             }
-            else {
+            else if (GXGetTlutObjData(tlut_obj) != arg1->palData) {
                 GXInitTlutObjData(tlut_obj, arg1->palData);
             }
             GXLoadTlut(tlut_obj, arg3);
@@ -1917,12 +1919,13 @@ static void LoadTexture(ModelData *arg0, HSFBITMAP *arg1, HSFATTRIBUTE *arg2, s1
             if (arg3 & 0x8000) {
                 tlut_obj = &arg2->tlut8000_obj;
                 tex_obj = &arg2->tex8000_obj;
+                pal_data = &((s16 *)arg1->palData)[(arg1->palSize + 0xF) & 0xFFF0];
                 if (!arg2->tlut8000_initialized) {
-                    GXInitTlutObj(tlut_obj, &((s16 *)arg1->palData)[(arg1->palSize + 0xF) & 0xFFF0], GX_TL_IA8, arg1->palSize);
+                    GXInitTlutObj(tlut_obj, pal_data, GX_TL_IA8, arg1->palSize);
                     arg2->tlut8000_initialized = TRUE;
                 }
-                else {
-                    GXInitTlutObjData(tlut_obj, &((s16 *)arg1->palData)[(arg1->palSize + 0xF) & 0xFFF0]);
+                else if (GXGetTlutObjData(tlut_obj) != pal_data) {
+                    GXInitTlutObjData(tlut_obj, pal_data);
                 }
                 GXLoadTlut(tlut_obj, arg3 & 0x7FFF);
                 if (!arg2->tex8000_initialized) {
@@ -1931,12 +1934,13 @@ static void LoadTexture(ModelData *arg0, HSFBITMAP *arg1, HSFATTRIBUTE *arg2, s1
                 }
             }
             else {
+                pal_data = arg1->palData;
                 if (!arg2->tlut_initialized) {
-                    GXInitTlutObj(tlut_obj, arg1->palData, GX_TL_IA8, arg1->palSize);
+                    GXInitTlutObj(tlut_obj, pal_data, GX_TL_IA8, arg1->palSize);
                     arg2->tlut_initialized = TRUE;
                 }
-                else {
-                    GXInitTlutObjData(tlut_obj, arg1->palData);
+                else if (GXGetTlutObjData(tlut_obj) != pal_data) {
+                    GXInitTlutObjData(tlut_obj, pal_data);
                 }
                 GXLoadTlut(tlut_obj, arg3);
                 if (!arg2->tex_initialized) {
