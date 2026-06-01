@@ -27,12 +27,15 @@ typedef struct datalist_sprite {
 	GXColor color;
 } DataListSprite;
 
+#define MODESEL_EVENT_SKIP_BOOT 2
+
 #ifndef __MWERKS__
 void fn_1_1EC0(s16 view);
 #endif
 
 s32 fn_1_2490(void);
 s32 fn_1_37DC(void);
+s32 FileSelectAutoLoadDefault(void);
 
 void fn_1_BED8(DataListModel *model_list);
 void fn_1_C168(DataListSprite *sprite_list);
