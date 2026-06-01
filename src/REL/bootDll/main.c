@@ -18,7 +18,10 @@
 #include "math.h"
 
 #include "data_num/title.h"
+
+#ifdef TARGET_PC
 #include "REL/modeseldll.h"
+#endif
 
 
 #ifdef TARGET_PC

@@ -92,6 +92,7 @@ void fn_1_5D30(void);
 s32 fn_1_61B4(void);
 void fn_1_AAB8(void);
 
+#ifdef TARGET_PC
 static void FileSelectUseDefaultGameStat(void)
 {
     SLSaveFlagSet(0);
@@ -158,6 +159,7 @@ s32 FileSelectAutoLoadDefault(void)
         curSlotNo, SaveFileNameTbl[curBoxNo], result);
     return 1;
 }
+#endif
 
 s32 fn_1_37DC(void)
 {
