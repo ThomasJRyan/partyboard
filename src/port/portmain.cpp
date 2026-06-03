@@ -27,6 +27,7 @@
 #include <aurora/dvd.h>
 #include <aurora/lib/logging.hpp>
 #include <game/card.h>
+#include <port/cli.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -386,6 +387,9 @@ extern "C" int port_main(int argc, char* argv[]) {
     PartyBoard_ConfigPath = calculate_config_path();
 
     partyboard::config::LoadFromUserPreferences();
+    if (!partyboard::parseCommandLine(argc, argv)) {
+        return 1;
+    }
     EnsureInitialPipelineCache(PartyBoard_ConfigPath);
     // TODO: How to handle this?
     //PADSetDefaultMapping(&defaultPadMapping, PAD_TYPE_STANDARD);
@@ -479,11 +483,18 @@ extern "C" int port_main(int argc, char* argv[]) {
         partyboard::getSettings().backend.skipPreLaunchUI.setValue(false);
         saveConfigBeforePrelaunch = true;
     }
+    if (forcePreLaunchUI && partyboard::isCliMinigameLaunchEnabled()) {
+        PartyBoardMainLog.info("Minigame CLI launch requested with no usable DVD image, showing prelaunch UI");
+    }
     if (saveConfigBeforePrelaunch) {
         partyboard::config::Save();
     }
 
-    if (!partyboard::getSettings().backend.skipPreLaunchUI) {
+    const bool skipPreLaunchUI =
+        !forcePreLaunchUI && (partyboard::getSettings().backend.skipPreLaunchUI
+            || partyboard::isCliMinigameLaunchEnabled());
+
+    if (!skipPreLaunchUI) {
         partyboard::ui::push_document(std::make_unique<partyboard::ui::Prelaunch>(), true);
 
         // pre game launch ui main loop

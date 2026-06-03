@@ -2,8 +2,15 @@
 #include "ext_math.h"
 #include "game/audio.h"
 #include "game/board/ui.h"
+#ifdef TARGET_PC
+#include "game/chrman.h"
+#endif
 #include "game/disp.h"
 #include "game/esprite.h"
+#ifdef TARGET_PC
+#include "game/flag.h"
+#include "game/gamework.h"
+#endif
 #include "game/gamework_data.h"
 #include "game/hsfman.h"
 #include "game/object.h"
@@ -16,6 +23,7 @@
 #include <msm/msmsys.h>
 
 #ifdef TARGET_PC
+#include "port/cli.h"
 #include "port/port_version.h"
 #endif
 
@@ -44,6 +52,111 @@ void fn_1_AF0(void);
 void fn_1_B8C(omObjData *object);
 void fn_1_F40(omObjData *object);
 void fn_1_1B6C(void);
+
+#ifdef TARGET_PC
+static void ApplyCliMinigameGroups(s32 mgType)
+{
+    s16 i;
+
+    for (i = 0; i < 4; i++) {
+        GWPlayerCfg[i].group = i;
+    }
+
+    if (mgType == 1) {
+        GWPlayerCfg[0].group = 0;
+        GWPlayerCfg[1].group = 1;
+        GWPlayerCfg[2].group = 1;
+        GWPlayerCfg[3].group = 1;
+    } else if (mgType == 2) {
+        GWPlayerCfg[0].group = 0;
+        GWPlayerCfg[1].group = 0;
+        GWPlayerCfg[2].group = 1;
+        GWPlayerCfg[3].group = 1;
+    }
+}
+
+static void ApplyCliMinigamePlayerConfig(s32 mgType)
+{
+    s16 i;
+    s16 cpuDifficulty = partyboard_cli_cpu_difficulty();
+
+    for (i = 0; i < 4; i++) {
+        GWPlayerCfg[i].character = i;
+        GWPlayerCfg[i].pad_idx = i;
+        GWPlayerCfg[i].diff = (i == 0) ? 0 : cpuDifficulty;
+        GWPlayerCfg[i].iscom = (i == 0) ? 0 : 1;
+    }
+
+    ApplyCliMinigameGroups(mgType);
+
+    for (i = 0; i < 4; i++) {
+        GWPlayer[i].character = GWPlayerCfg[i].character;
+        GWPlayer[i].port = GWPlayerCfg[i].pad_idx;
+        GWPlayer[i].diff = GWPlayerCfg[i].diff;
+        GWPlayer[i].com = GWPlayerCfg[i].iscom;
+        GWPlayer[i].team = GWPlayerCfg[i].group;
+        GWPlayer[i].player_idx = i;
+        GWPlayer[i].coins_mg = 0;
+        GWPlayer[i].coins_battle = 0;
+        GWPlayer[i].coin_collect = 0;
+        GWPlayer[i].coin_win = 0;
+    }
+}
+
+static BOOL TryLaunchCliMinigame(void)
+{
+    s32 i;
+    s32 overlay;
+    s32 mgNo;
+    omOvlHisData *his;
+
+    if (!partyboard_cli_minigame_enabled()) {
+        return FALSE;
+    }
+
+    overlay = partyboard_cli_minigame_overlay();
+    mgNo = omMgIndexGet(overlay);
+    if (mgNo < 0) {
+        OSReport("PartyBoard: unable to launch CLI minigame m%d, overlay %d is not in mgInfoTbl\n",
+            partyboard_cli_minigame_number(), overlay);
+        return FALSE;
+    }
+
+    OSReport("PartyBoard: launching CLI minigame m%d\n", partyboard_cli_minigame_number());
+
+    ApplyCliMinigamePlayerConfig(mgInfoTbl[mgNo].type);
+    GWSystem.mg_next = mgNo;
+    GWSystem.mg_type = -1;
+    GWSystem.player_curr = 0;
+    GWGameStat.sound_mode = msmSysGetOutputMode();
+    GWMGAvailSet(mgNo + 401);
+    GWMGExplainSet(0);
+    GWMGShowComSet(1);
+    mgGameStatBackup = GWGameStat;
+    mgBoardHostEnableF = 1;
+    mgPracticeEnableF = 1;
+    mgInstExitEnableF = 1;
+
+    // instDll skips the rules screen when this flag is clear. The rest of the
+    // setup here mirrors the minimum free-play launch state for CLI testing.
+    _ClearFlag(FLAG_ID_MAKE(0, 11));
+    _ClearFlag(FLAG_ID_MAKE(1, 0));
+    _ClearFlag(FLAG_ID_MAKE(1, 8));
+    _ClearFlag(FLAG_ID_MAKE(1, 11));
+    _ClearFlag(FLAG_ID_MAKE(1, 12));
+
+    CharDataClose(-1);
+    for (i = 0; i < 4; i++) {
+        CharMotionInit(GWPlayerCfg[i].character);
+    }
+    HuAudSndCharGrpSet(-1);
+
+    his = omOvlHisGet(0);
+    omOvlHisChg(0, DLL_mgmodedll, 1, his->stat);
+    omOvlCallEx(DLL_instdll, 1, 0, 0);
+    return TRUE;
+}
+#endif
 
 void ObjectSetup(void)
 {
@@ -86,6 +199,11 @@ void fn_1_414(void)
 #ifdef TARGET_PC
         if (omovlevtno == MODESEL_EVENT_SKIP_BOOT) {
             FileSelectAutoLoadDefault();
+            if (TryLaunchCliMinigame()) {
+                while (1) {
+                    HuPrcVSleep();
+                }
+            }
         }
 #endif
         HuAudSeqPlay(43);

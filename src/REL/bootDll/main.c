@@ -26,6 +26,7 @@
 
 #ifdef TARGET_PC
 #include "port/byteswap.h"
+#include "port/cli.h"
 #include "port/port_version.h"
 #include "port/settings.h"
 #endif
@@ -155,7 +156,7 @@ void ObjectSetup(void)
 #endif
 #endif
 #ifdef TARGET_PC
-     if (omovlevtno == 0 && partyboard_settings_skipBootSequence()) {
+     if (omovlevtno == 0 && (partyboard_settings_skipBootSequence() || partyboard_cli_minigame_enabled())) {
          for (i = 0; i < 4; i++) {
              GWPlayerCfg[i].pad_idx = i;
          }
