@@ -22,6 +22,11 @@
 
 #include "REL/resultdll.h"
 
+#ifdef TARGET_PC
+#include "port/cli.h"
+#include "port/main.h"
+#endif
+
 #ifndef __MWERKS__
 #include "game/esprite.h"
 #endif
@@ -107,6 +112,13 @@ void ObjectSetup(void)
         }
     }
     HuDataDirClose(mgInfoTbl[resultMgNo].data_dir);
+#ifdef TARGET_PC
+    if (partyboard_cli_minigame_enabled()) {
+        OSReport("PartyBoard: CLI minigame complete, closing application\n");
+        PartyBoard_IsRunning = FALSE;
+        return;
+    }
+#endif
     if (mgInfoTbl[resultMgNo].type == 3 || mgInfoTbl[resultMgNo].type == 5 || mgInfoTbl[resultMgNo].type == 6
         || !_CheckFlag(FLAG_ID_MAKE(1, 0))) {
         if (_CheckFlag(0x10000)) {

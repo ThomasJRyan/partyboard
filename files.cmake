@@ -81,6 +81,7 @@ set(PORT_FILES
         src/port/achievements.cpp
         src/port/audio.c
         src/port/byteswap.cpp
+        src/port/cli.cpp
         src/port/config.cpp
         src/port/dolassets.cpp
         #        src/port/dvd.c
