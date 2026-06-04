@@ -129,7 +129,7 @@ static BOOL TryLaunchCliMinigame(void)
     GWSystem.mg_type = -1;
     GWSystem.player_curr = 0;
     GWGameStat.sound_mode = msmSysGetOutputMode();
-    GWMGAvailSet(mgNo + 401);
+    GWMGAvailSet(partyboard_cli_minigame_number());
     GWMGExplainSet(0);
     GWMGShowComSet(1);
     mgGameStatBackup = GWGameStat;

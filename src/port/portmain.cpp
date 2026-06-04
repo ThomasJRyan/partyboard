@@ -482,7 +482,7 @@ extern "C" int port_main(int argc, char* argv[]) {
         partyboard::getSettings().backend.skipPreLaunchUI.setValue(false);
         saveConfigBeforePrelaunch = true;
     }
-    if (forcePreLaunchUI && partyboard::isCliMinigameLaunchEnabled()) {
+    if (forcePreLaunchUI && partyboard_cli_minigame_enabled()) {
         PartyBoardMainLog.info("Minigame CLI launch requested with no usable DVD image, showing prelaunch UI");
     }
     if (saveConfigBeforePrelaunch) {
@@ -491,7 +491,7 @@ extern "C" int port_main(int argc, char* argv[]) {
 
     const bool skipPreLaunchUI =
         !forcePreLaunchUI && (partyboard::getSettings().backend.skipPreLaunchUI
-            || partyboard::isCliMinigameLaunchEnabled());
+            || partyboard_cli_minigame_enabled());
 
     if (!skipPreLaunchUI) {
         partyboard::ui::push_document(std::make_unique<partyboard::ui::Prelaunch>(), true);

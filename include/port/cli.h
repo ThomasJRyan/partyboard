@@ -11,9 +11,6 @@
 namespace partyboard {
 
 bool parseCommandLine(int argc, char* argv[]);
-bool isCliMinigameLaunchEnabled();
-int cliMinigameNumber();
-int cliCpuDifficulty();
 
 }
 
