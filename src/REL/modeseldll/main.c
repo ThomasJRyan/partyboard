@@ -12,7 +12,7 @@
 #include "game/gamework.h"
 #endif
 #include "game/gamework_data.h"
-#include "game/hsfman.h"
+#include "game/hu3d.h"
 #include "game/object.h"
 #include "game/objsub.h"
 #include "game/pad.h"

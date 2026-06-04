@@ -3,10 +3,8 @@
 #include "ext_math.h"
 #include "game/armem.h"
 #include "game/chrman.h"
-#include "game/hsfdraw.h"
 #include "game/hsfex.h"
-#include "game/hsfman.h"
-#include "game/hsfmotion.h"
+#include "game/hu3d.h"
 #include "game/minigame_seq.h"
 #include "game/objsub.h"
 #include "game/pad.h"
@@ -19,6 +17,7 @@
 #ifndef __MWERKS__
 extern s32 rand8(void);
 #include "game/audio.h"
+#include "port/settings.h"
 #endif
 
 typedef struct MentDllUnkBssE4Struct {
@@ -206,6 +205,11 @@ void fn_1_658C(Process *arg0)
         CharDataClose(-1);
     }
     lbl_1_bss_A8[4] = GWGameStat.open_w06;
+#ifdef TARGET_PC
+    if (partyboard_settings_unlock_bowsers_gnarly_party()) {
+        lbl_1_bss_A8[4] = 1;
+    }
+#endif
     lbl_1_bss_A8[5] = GWGameStat.veryHardUnlock;
     lbl_1_bss_A8[6] = GWGameStat.customPackEnable;
     switch (lbl_1_bss_A8[0]) {
@@ -3855,11 +3859,11 @@ void fn_1_151B8(MentDllUnkBss35BCStruct *arg0, s32 arg1, s32 arg2, s32 arg3)
     s32 var_r29;
     s32 var_r28;
     s32 var_r27;
-    AnimData *var_r26;
-    AnimData *var_r25;
-    AnimData *var_r24;
-    AnimData *var_r23;
-    AnimData *var_r22;
+    ANIMDATA *var_r26;
+    ANIMDATA *var_r25;
+    ANIMDATA *var_r24;
+    ANIMDATA *var_r23;
+    ANIMDATA *var_r22;
 
     var_r30 = HuSprGrpCreate(0x35);
     arg0->unk_30 = var_r30;
@@ -4382,8 +4386,8 @@ void fn_1_17CC8(MentDllUnkBss35BCStruct *arg0, s32 arg1, s32 arg2, s32 arg3)
     s32 var_r28;
     s32 var_r27;
     s32 var_r26;
-    AnimData *var_r25;
-    AnimData *var_r24;
+    ANIMDATA *var_r25;
+    ANIMDATA *var_r24;
 
     var_r26 = HuSprGrpCreate(0x11);
     arg0->unk_34 = var_r26;
@@ -4485,7 +4489,7 @@ void fn_1_1850C(void)
         HuSprGrpPosSet(lbl_1_bss_35BC[0].unk_34, 16.0f, var_f31);
         if (var_r31 >= 0xF) {
             var_f31 = fn_1_254(210.0f, -500.0f, var_r31 - 0xF, 60.0f);
-            HuSprGrpData[lbl_1_bss_35BC[0].unk_38].y = (s32)fn_1_234(HuSprGrpData[lbl_1_bss_35BC[0].unk_38].y, var_f31, 10.0f);
+            HuSprGrpData[lbl_1_bss_35BC[0].unk_38].pos.y = (s32)fn_1_234(HuSprGrpData[lbl_1_bss_35BC[0].unk_38].pos.y, var_f31, 10.0f);
         }
     }
 }
@@ -4780,8 +4784,8 @@ void fn_1_19C98(omObjData *arg0, MentDllUnkBss35BCStruct *arg1)
         };
         lbl_1_bss_35BC[0].unk_08[3] = 0;
         var_r27 = arg1->unk_08[0];
-        sp8[0] = HuSprData[HuSprGrpData[var_r30].members[3]].x;
-        sp8[1] = HuSprData[HuSprGrpData[var_r30].members[4]].x;
+        sp8[0] = HuSprData[HuSprGrpData[var_r30].members[3]].pos.x;
+        sp8[1] = HuSprData[HuSprGrpData[var_r30].members[4]].pos.x;
         if ((HuPadBtnDown[lbl_1_bss_3114->unk_6C] & PAD_BUTTON_A) != 0) {
             arg1->unk_08[0]++;
             HuAudFXPlay(2);
@@ -5141,9 +5145,9 @@ void fn_1_1BB2C(MentDllUnkBss35BCStruct *arg0, s32 arg1, s32 arg2, s32 arg3)
     s32 var_r31;
     s32 var_r30;
     s32 var_r29;
-    AnimData *var_r28;
-    AnimData *var_r26;
-    AnimData *var_r25;
+    ANIMDATA *var_r28;
+    ANIMDATA *var_r26;
+    ANIMDATA *var_r25;
 
     s32 sp8[4][2] = {
         { 0x00000070, 0x00000060 },
@@ -5461,8 +5465,8 @@ void fn_1_1D4FC(MentDllUnkBss35BCStruct *arg0, s32 arg1, s32 arg2, s32 arg3)
     s32 var_r31;
     s32 var_r30;
     s32 var_r29;
-    AnimData *var_r27;
-    AnimData *var_r26;
+    ANIMDATA *var_r27;
+    ANIMDATA *var_r26;
 
     s32 sp8[4][2] = {
         { 0x00000070, 0x00000037 },
@@ -5986,7 +5990,7 @@ void fn_1_1FA34(void)
         HuSprGrpPosSet(lbl_1_bss_35BC[0].unk_34, 16.0f, var_f31);
         if (var_r31 >= 0xF) {
             var_f31 = fn_1_254(210.0f, -500.0f, var_r31 - 0xF, 60.0f);
-            HuSprGrpData[lbl_1_bss_35BC[0].unk_38].y = (s32)fn_1_234(HuSprGrpData[lbl_1_bss_35BC[0].unk_38].y, var_f31, 10.0f);
+            HuSprGrpData[lbl_1_bss_35BC[0].unk_38].pos.y = (s32)fn_1_234(HuSprGrpData[lbl_1_bss_35BC[0].unk_38].pos.y, var_f31, 10.0f);
         }
     }
 }
@@ -6003,7 +6007,7 @@ void fn_1_1FC54(void)
         var_f31 = fn_1_254(40.0f, -500.0f, var_r31, 40.0f);
         HuSprGrpPosSet(lbl_1_bss_35BC[0].unk_34, 16.0f, var_f31);
         var_f31 = fn_1_254(210.0f, -500.0f, var_r31, 40.0f);
-        HuSprGrpData[lbl_1_bss_35BC[0].unk_38].y = (s32)fn_1_234(HuSprGrpData[lbl_1_bss_35BC[0].unk_38].y, var_f31, 10.0f);
+        HuSprGrpData[lbl_1_bss_35BC[0].unk_38].pos.y = (s32)fn_1_234(HuSprGrpData[lbl_1_bss_35BC[0].unk_38].pos.y, var_f31, 10.0f);
     }
 }
 
@@ -6231,8 +6235,8 @@ void fn_1_20B54(MentDllUnkBss35BCStruct *arg0, s32 arg1, s32 arg2, s32 arg3)
     s32 var_r29;
     s32 var_r28;
     s32 var_r27;
-    AnimData *var_r26;
-    AnimData *var_r25;
+    ANIMDATA *var_r26;
+    ANIMDATA *var_r25;
 
     var_r29 = HuSprGrpCreate(0x13);
     arg0->unk_40 = var_r29;

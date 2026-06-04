@@ -632,6 +632,14 @@ SettingsWindow::SettingsWindow(bool prelaunch)
                 });
         };
 
+        leftPane.add_section("Minigames");
+        addCheat("Unlock All Minigames", getSettings().game.unlockAllMinigames,
+            "Treat every minigame as unlocked when the game checks minigame availability.");
+
+        leftPane.add_section("Boards");
+        addCheat("Unlock Bowser's Gnarly Party", getSettings().game.unlockBowsersGnarlyParty,
+            "Treat Bowser's Gnarly Party as unlocked when the game checks board availability.");
+
         // leftPane.add_section("Resources");
         // addCheat("Infinite Hearts", getSettings().game.infiniteHearts, "Keeps your health full.");
 
