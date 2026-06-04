@@ -1100,6 +1100,7 @@ EXPORTS
     port_main
     GetRelIncludeData
     OSGetLanguage
+    partyboard_settings_skipBootSequence
     partyboard_version_is_pal
     partyboard_version_is_ntsc
     partyboard_version_is_usa
