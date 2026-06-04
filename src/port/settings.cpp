@@ -45,6 +45,7 @@ UserSettings g_userSettings = {
 
         // Cheats
         .infiniteHearts {"game.infiniteHearts", false},
+        .unlockAllMinigames {"game.unlockAllMinigames", false},
 
         // Technical
 
@@ -105,6 +106,7 @@ void registerSettings() {
     Register(g_userSettings.game.speedrunMode);
     Register(g_userSettings.game.recordingMode);
     Register(g_userSettings.game.infiniteHearts);
+    Register(g_userSettings.game.unlockAllMinigames);
     Register(g_userSettings.game.allowBackgroundInput);
 
     Register(g_userSettings.backend.isoPath);
@@ -137,6 +139,11 @@ bool partyboard_settings_enableTurboKeybind(void)
 bool partyboard_settings_skipBootSequence(void)
 {
     return partyboard::getSettings().backend.skipBootSequence;
+}
+
+bool partyboard_settings_unlock_all_minigames(void)
+{
+    return partyboard::getSettings().game.unlockAllMinigames.getValue();
 }
 
 }
